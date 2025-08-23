@@ -1,0 +1,83 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+.terraform.tfstate
+.terraform.tfstate.backup
+.terraform.tfstate.backup.*
+.terraform.tfstate.*
+.terraform.d/plugins/
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+*.env
+secrets.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+.env
+.pip-cache/
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+
+# VSCode
+.vscode/
+.vscode/*
+.history/
+
+# Claude / Anthropic local files
+.claude/
+.claude_cache/
+.claude_workspace/
+claude-*
+.anthropic/
+
+# Ansible
+*.retry
+*.vault_pass
+*.vault-password
+*.vault_password
+*.vault-password-file
+*.inventory
+*.ansible/tmp/
+*.ansible/collections/
+*roles/*/.retry
+
+# Logs and temporary
+*.log
+*.tmp
+*.bak
+*.swp
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# JetBrains
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Others
+terraform.tfvars
+*.tfvars
+
+# End of file
