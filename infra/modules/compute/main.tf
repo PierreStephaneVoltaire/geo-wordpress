@@ -34,12 +34,27 @@ resource "aws_launch_template" "wordpress" {
   image_id      = data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type
 
-  vpc_security_group_ids = [var.ec2_security_group_id]
+
   iam_instance_profile {
     name = var.ec2_instance_profile_name
   }
 
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [var.ec2_security_group_id]
+  }
+
   user_data = local.user_data
+
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_type           = "gp3"
+      volume_size           = 20
+      encrypted             = true
+      delete_on_termination = true
+    }
+  }
 
   tag_specifications {
     resource_type = "instance"
@@ -76,14 +91,14 @@ resource "aws_lb_target_group" "wordpress" {
 
   health_check {
     enabled             = true
-    healthy_threshold   = 20
+    healthy_threshold   = 10
     interval            = 30
     matcher             = "200"
     path                = "/"
     port                = "traffic-port"
     protocol            = "HTTP"
     timeout             = 10
-    unhealthy_threshold = 20
+    unhealthy_threshold = 10
   }
 
   tags = merge(var.tags, {
@@ -108,7 +123,7 @@ resource "aws_autoscaling_group" "wordpress" {
   vpc_zone_identifier       = var.public_subnets # Use public subnets to avoid NAT costs
   target_group_arns         = [aws_lb_target_group.wordpress.arn]
   health_check_type         = "ELB"
-  health_check_grace_period = 300
+  health_check_grace_period = 600
 
   min_size         = var.min_size
   max_size         = var.max_size
@@ -140,7 +155,7 @@ resource "aws_autoscaling_policy" "scale_up" {
   name                   = "${var.project_name}-scale-up-${var.region}"
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
+  cooldown               = 600
   autoscaling_group_name = aws_autoscaling_group.wordpress.name
 }
 
@@ -148,7 +163,7 @@ resource "aws_autoscaling_policy" "scale_down" {
   name                   = "${var.project_name}-scale-down-${var.region}"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
-  cooldown               = 300
+  cooldown               = 600
   autoscaling_group_name = aws_autoscaling_group.wordpress.name
 }
 

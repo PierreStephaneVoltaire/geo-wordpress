@@ -49,7 +49,7 @@ variable "instance_type" {
 variable "min_size" {
   description = "Minimum number of instances in ASG"
   type        = number
-  default     = 0
+  default     = 1
 }
 
 variable "max_size" {

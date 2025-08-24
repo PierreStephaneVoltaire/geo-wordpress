@@ -23,85 +23,106 @@ resource "aws_s3_bucket_public_access_block" "wordpress_uploads" {
 }
 
 resource "aws_ssm_parameter" "db_password" {
-  count     = var.create_parameters ? 1 : 0
+
   name      = "/${var.project_name}/${var.environment}/db/password"
   type      = "SecureString"
   value     = var.db_password
   overwrite = true
-
-  tags = var.tags
 }
 
 resource "aws_ssm_parameter" "db_username" {
-  count     = var.create_parameters ? 1 : 0
+
   name      = "/${var.project_name}/${var.environment}/db/username"
   type      = "String"
   value     = var.db_username
   overwrite = true
 
-  tags = var.tags
+
 }
 
 resource "aws_ssm_parameter" "db_endpoint" {
-  count     = var.create_parameters ? 1 : 0
+
   name      = "/${var.project_name}/${var.environment}/db/endpoint"
   type      = "String"
   value     = var.db_endpoint
   overwrite = true
 
-  tags = var.tags
+
 }
 
 resource "aws_ssm_parameter" "ireland_db_endpoint" {
-  count     = var.create_parameters ? 1 : 0
+  provider = aws.ireland
+
   name      = "/${var.project_name}/${var.environment}/ireland/db/endpoint"
   type      = "String"
   value     = var.ireland_db_endpoint
   overwrite = true
 
-  tags = var.tags
+
 }
 
 resource "aws_ssm_parameter" "ireland_db_username" {
-  count     = var.create_parameters ? 1 : 0
+  provider = aws.ireland
+
   name      = "/${var.project_name}/${var.environment}/ireland/db/username"
   type      = "String"
   value     = var.db_username
   overwrite = true
 
-  tags = var.tags
+
 }
 
 resource "aws_ssm_parameter" "ireland_db_password" {
-  count     = var.create_parameters ? 1 : 0
+  provider = aws.ireland
+
   name      = "/${var.project_name}/${var.environment}/ireland/db/password"
   type      = "SecureString"
   value     = var.db_password
   overwrite = true
 
-  tags = var.tags
+
 }
 
 resource "aws_ssm_parameter" "s3_bucket_name" {
-  count     = var.create_parameters ? 1 : 0
+  provider  = aws.singapore
   name      = "/${var.project_name}/${var.environment}/s3/bucket"
   type      = "String"
   value     = aws_s3_bucket.wordpress_uploads.bucket
   overwrite = true
 
-  tags = var.tags
+
+}
+resource "aws_ssm_parameter" "s3_bucket_name_ireland" {
+  provider  = aws.ireland
+  name      = "/${var.project_name}/${var.environment}/s3/bucket"
+  type      = "String"
+  value     = aws_s3_bucket.wordpress_uploads.bucket
+  overwrite = true
+
+
 }
 
+
 resource "aws_ssm_parameter" "wp_admin_password" {
-  count     = var.create_parameters ? 1 : 0
+
+  provider  = aws.singapore
   name      = "/${var.project_name}/${var.environment}/wordpress/admin_password"
   type      = "SecureString"
   value     = var.wp_admin_password
   overwrite = true
 
-  tags = var.tags
-}
 
+}
+resource "aws_ssm_parameter" "wp_admin_password_ireland" {
+
+  provider  = aws.ireland
+  name      = "/${var.project_name}/${var.environment}/wordpress/admin_password"
+  type      = "SecureString"
+  value     = var.wp_admin_password
+  overwrite = true
+
+
+}
 resource "aws_s3_bucket_policy" "wordpress_uploads" {
   bucket = aws_s3_bucket.wordpress_uploads.id
 

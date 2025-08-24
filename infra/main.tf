@@ -61,9 +61,14 @@ module "ireland_database_replica" {
 module "data" {
   source = "./modules/data"
 
+  providers = {
+    aws           = aws
+    aws.ireland   = aws.ireland
+    aws.singapore = aws.singapore
+  }
+
   project_name        = var.project_name
   random_suffix       = random_id.suffix.hex
-  create_parameters   = true
   environment         = var.environment
   db_username         = var.db_username
   db_password         = random_password.db_password.result

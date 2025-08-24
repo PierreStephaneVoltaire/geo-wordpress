@@ -8,11 +8,7 @@ variable "random_suffix" {
   type        = string
 }
 
-variable "create_parameters" {
-  description = "Whether to create parameter store entries"
-  type        = bool
-  default     = false
-}
+
 
 variable "environment" {
   description = "Environment name for parameter store"

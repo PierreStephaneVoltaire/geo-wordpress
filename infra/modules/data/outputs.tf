@@ -11,37 +11,37 @@ output "s3_bucket_arn" {
 
 output "singapore_db_endpoint_param" {
   description = "Name of the Singapore database endpoint SSM parameter"
-  value       = var.create_parameters ? aws_ssm_parameter.db_endpoint[0].name : "/${var.project_name}/${var.environment}/db/endpoint"
+  value       = aws_ssm_parameter.db_endpoint.name
 }
 
 output "singapore_db_username_param" {
   description = "Name of the Singapore database username SSM parameter"
-  value       = var.create_parameters ? aws_ssm_parameter.db_username[0].name : "/${var.project_name}/${var.environment}/db/username"
+  value       = aws_ssm_parameter.db_username.name
 }
 
 output "singapore_db_password_param" {
   description = "Name of the Singapore database password SSM parameter"
-  value       = var.create_parameters ? aws_ssm_parameter.db_password[0].name : "/${var.project_name}/${var.environment}/db/password"
+  value       = aws_ssm_parameter.db_password.name
 }
 
 
 output "ireland_db_endpoint_param" {
   description = "Name of the Ireland database endpoint SSM parameter"
-  value       = var.create_parameters ? aws_ssm_parameter.ireland_db_endpoint[0].name : "/${var.project_name}/${var.environment}/ireland/db/endpoint"
+  value       = aws_ssm_parameter.ireland_db_endpoint.name
 }
 
 output "ireland_db_username_param" {
   description = "Name of the Ireland database username SSM parameter"
-  value       = var.create_parameters ? aws_ssm_parameter.ireland_db_username[0].name : "/${var.project_name}/${var.environment}/ireland/db/username"
+  value       = aws_ssm_parameter.ireland_db_username.name
 }
 
 output "ireland_db_password_param" {
   description = "Name of the Ireland database password SSM parameter"
-  value       = var.create_parameters ? aws_ssm_parameter.ireland_db_password[0].name : "/${var.project_name}/${var.environment}/ireland/db/password"
+  value       = aws_ssm_parameter.ireland_db_password.name
 }
 
 
 output "s3_bucket_param" {
   description = "Name of the S3 bucket SSM parameter"
-  value       = var.create_parameters ? aws_ssm_parameter.s3_bucket_name[0].name : "/${var.project_name}/${var.environment}/s3/bucket"
+  value       = aws_ssm_parameter.s3_bucket_name.name
 }

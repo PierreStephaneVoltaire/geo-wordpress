@@ -179,6 +179,15 @@ resource "aws_iam_role_policy" "ec2_policies" {
           "ec2:DescribeTags"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudwatch:PutMetricData",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeTags"
+        ]
+        Resource = "*"
       }
     ]
   })
