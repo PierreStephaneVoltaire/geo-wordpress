@@ -1,18 +1,18 @@
 # Terraform
-.terraform/
+*.terraform/
 *.tfstate
 *.tfstate.*
-crash.log
-override.tf
-override.tf.json
+*crash.log
+*override.tf
+*override.tf.json
 *_override.tf
 *_override.tf.json
-.terraform.lock.hcl
-.terraform.tfstate
-.terraform.tfstate.backup
-.terraform.tfstate.backup.*
-.terraform.tfstate.*
-.terraform.d/plugins/
+*.terraform.lock.hcl
+*.terraform.tfstate
+*.terraform.tfstate.backup
+*.terraform.tfstate.backup.*
+*.terraform.tfstate.*
+*.terraform.d/plugins/
 
 # Sensitive files
 *.pem
@@ -22,19 +22,19 @@ override.tf.json
 secrets.*
 
 # Python
-__pycache__/
+*__pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
-.venv/
-venv/
-ENV/
-env/
-.env
-.pip-cache/
-.python-version
-pip-log.txt
-pip-delete-this-directory.txt
+*.pytest_cache/
+*.venv/
+*venv/
+*ENV/
+*env/
+*.env
+*.pip-cache/
+*.python-version
+*pip-log.txt
+*pip-delete-this-directory.txt
 
 # VSCode
 .vscode/
