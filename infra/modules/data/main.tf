@@ -9,7 +9,6 @@ terraform {
 
 resource "aws_s3_bucket" "wordpress_uploads" {
   bucket = "${var.project_name}-uploads-${var.random_suffix}"
-  tags   = var.tags
 }
 
 resource "aws_s3_bucket_public_access_block" "wordpress_uploads" {
@@ -122,7 +121,6 @@ resource "aws_ssm_parameter" "wp_admin_password_ireland" {
 
 
 }
-
 
 resource "aws_s3_bucket_policy" "wordpress_uploads" {
   bucket = aws_s3_bucket.wordpress_uploads.id

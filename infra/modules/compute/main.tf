@@ -1,4 +1,3 @@
-
 terraform {
   required_providers {
     aws = {
@@ -33,7 +32,7 @@ resource "aws_launch_template" "wordpress" {
   name_prefix   = "${var.project_name}-${var.region}-"
   image_id      = data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type
-
+  vpc_security_group_ids = [var.ec2_security_group_id]
 
   iam_instance_profile {
     name = var.ec2_instance_profile_name
@@ -41,7 +40,7 @@ resource "aws_launch_template" "wordpress" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups             = [var.ec2_security_group_id]
+    security_groups = [var.ec2_security_group_id]
   }
 
   user_data = local.user_data
@@ -49,18 +48,18 @@ resource "aws_launch_template" "wordpress" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_type           = "gp3"
-      volume_size           = 20
-      encrypted             = true
+      volume_type = "gp3"
+      volume_size = 20
+      encrypted   = true
       delete_on_termination = true
     }
   }
 
   tag_specifications {
     resource_type = "instance"
-    tags = merge(var.tags, {
+    tags = {
       Name = "${var.project_name}-${var.region}"
-    })
+    }
   }
 
   lifecycle {
@@ -77,10 +76,6 @@ resource "aws_lb" "wordpress" {
   subnets            = var.public_subnets
 
   enable_deletion_protection = false
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-alb-${var.region}"
-  })
 }
 
 resource "aws_lb_target_group" "wordpress" {
@@ -100,10 +95,6 @@ resource "aws_lb_target_group" "wordpress" {
     timeout             = 10
     unhealthy_threshold = 10
   }
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-tg-${var.region}"
-  })
 }
 
 resource "aws_lb_listener" "wordpress" {
@@ -132,21 +123,6 @@ resource "aws_autoscaling_group" "wordpress" {
   launch_template {
     id      = aws_launch_template.wordpress.id
     version = "$Latest"
-  }
-
-  tag {
-    key                 = "Name"
-    value               = "${var.project_name}-asg-${var.region}"
-    propagate_at_launch = false
-  }
-
-  dynamic "tag" {
-    for_each = var.tags
-    content {
-      key                 = tag.key
-      value               = tag.value
-      propagate_at_launch = true
-    }
   }
 }
 
@@ -183,8 +159,6 @@ resource "aws_cloudwatch_metric_alarm" "cpu_high" {
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.wordpress.name
   }
-
-  tags = var.tags
 }
 
 resource "aws_cloudwatch_metric_alarm" "cpu_low" {
@@ -202,8 +176,6 @@ resource "aws_cloudwatch_metric_alarm" "cpu_low" {
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.wordpress.name
   }
-
-  tags = var.tags
 }
 
 resource "aws_cloudwatch_metric_alarm" "memory_high" {
@@ -221,6 +193,4 @@ resource "aws_cloudwatch_metric_alarm" "memory_high" {
   dimensions = {
     AutoScalingGroupName = aws_autoscaling_group.wordpress.name
   }
-
-  tags = var.tags
 }
