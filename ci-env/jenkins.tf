@@ -60,7 +60,7 @@ resource "aws_instance" "jenkins" {
   }
 
   user_data = templatefile("${path.module}/templates/jenkins_user_data.tpl", {
-    region = data.aws_region.current.name
+    region        = data.aws_region.current.name
     random_suffix = random_id.suffix.hex
   })
 
