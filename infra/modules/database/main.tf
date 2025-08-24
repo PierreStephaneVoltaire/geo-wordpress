@@ -38,7 +38,7 @@ resource "aws_db_instance" "wordpress" {
 
   allocated_storage     = 20
   max_allocated_storage = 100
-  storage_type          = "gp2"
+  storage_type          = "gp3"
   storage_encrypted     = false
 
   db_name  = "wordpress"
