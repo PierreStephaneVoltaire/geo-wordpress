@@ -46,15 +46,15 @@ data "archive_file" "geo_router_zip" {
 resource "aws_lambda_function" "geo_router" {
   provider = aws.us_east_1
 
-  filename      = "lambda/geo_router.zip"
-  function_name = "${var.project_name}-geo-router"
-  role          = aws_iam_role.lambda_edge_role.arn
-  handler       = "index.handler"
-  runtime       = "python3.9"
-  timeout       = 5
-  publish       = true
-  source_code_hash = data.archive_file.geo_router_zip.output_base64sha256 
-  depends_on = [data.archive_file.geo_router_zip]
+  filename         = "lambda/geo_router.zip"
+  function_name    = "${var.project_name}-geo-router"
+  role             = aws_iam_role.lambda_edge_role.arn
+  handler          = "index.handler"
+  runtime          = "python3.9"
+  timeout          = 5
+  publish          = true
+  source_code_hash = data.archive_file.geo_router_zip.output_base64sha256
+  depends_on       = [data.archive_file.geo_router_zip]
 
   tags = var.common_tags
 }
@@ -166,7 +166,7 @@ resource "aws_ssm_parameter" "cloudfront_distribution_id" {
   type      = "String"
   value     = aws_cloudfront_distribution.wordpress.id
   overwrite = true
-  
+
 }
 
 resource "aws_ssm_parameter" "cloudfront_distribution_id_ireland" {
@@ -175,5 +175,5 @@ resource "aws_ssm_parameter" "cloudfront_distribution_id_ireland" {
   type      = "String"
   value     = aws_cloudfront_distribution.wordpress.id
   overwrite = true
-  
+
 }

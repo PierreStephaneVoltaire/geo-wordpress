@@ -116,7 +116,7 @@ module "singapore_compute" {
     s3_bucket_param           = module.data.s3_bucket_param
     primary_db_endpoint_param = module.data.singapore_db_endpoint_param
     admin_email               = var.admin_email
-        distribution_id           = aws_ssm_parameter.cloudfront_distribution_id.name
+    distribution_id           = aws_ssm_parameter.cloudfront_distribution_id.name
   }
 
   tags = var.common_tags
