@@ -1,4 +1,3 @@
-
 terraform {
   required_providers {
     aws = {
@@ -123,6 +122,8 @@ resource "aws_ssm_parameter" "wp_admin_password_ireland" {
 
 
 }
+
+
 resource "aws_s3_bucket_policy" "wordpress_uploads" {
   bucket = aws_s3_bucket.wordpress_uploads.id
 

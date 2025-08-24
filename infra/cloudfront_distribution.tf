@@ -53,7 +53,7 @@ resource "aws_lambda_function" "geo_router" {
   runtime       = "python3.9"
   timeout       = 5
   publish       = true
-
+  source_code_hash = data.archive_file.geo_router_zip.output_base64sha256 
   depends_on = [data.archive_file.geo_router_zip]
 
   tags = var.common_tags
@@ -158,4 +158,22 @@ resource "aws_cloudfront_distribution" "wordpress" {
   }
 
   tags = var.common_tags
+}
+
+resource "aws_ssm_parameter" "cloudfront_distribution_id" {
+  provider  = aws.singapore
+  name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_id"
+  type      = "String"
+  value     = aws_cloudfront_distribution.wordpress.id
+  overwrite = true
+  
+}
+
+resource "aws_ssm_parameter" "cloudfront_distribution_id_ireland" {
+  provider  = aws.ireland
+  name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_id"
+  type      = "String"
+  value     = aws_cloudfront_distribution.wordpress.id
+  overwrite = true
+  
 }

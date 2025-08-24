@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'MIN_SIZE', defaultValue: '1', description: 'Minimum number of instances in ASG')
+        string(name: 'MAX_SIZE', defaultValue: '4', description: 'Maximum number of instances in ASG')
+        string(name: 'DESIRED_CAPACITY', defaultValue: '2', description: 'Desired number of instances in ASG')
+        string(name: 'ADMIN_EMAIL', defaultValue: 'pvoltaire96@gmail.com', description: 'WordPress admin email address')
+    }
+    environment {
+        TF_VAR_min_size = "${params.MIN_SIZE}"
+        TF_VAR_max_size = "${params.MAX_SIZE}"
+        TF_VAR_desired_capacity = "${params.DESIRED_CAPACITY}"
+        TF_VAR_admin_email = "${params.ADMIN_EMAIL}"
+    }
+    stages {
+        stage('Init') {
+            steps {
+                dir('infra') {
+                    sh 'terraform init'
+                }
+            }
+        }
+        stage('Validate') {
+            steps {
+                dir('infra') {
+                    sh 'terraform validate'
+                }
+            }
+        }
+        stage('Plan') {
+            steps {
+                dir('infra') {
+                    sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+        stage('Approval') {
+            steps {
+                input message: 'Apply Terraform changes?'
+            }
+        }
+        stage('Apply') {
+            steps {
+                dir('infra') {
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
+        }
+    }
+}

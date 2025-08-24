@@ -44,7 +44,8 @@ runcmd:
         db_user: "{{ lookup('aws_ssm', '${db_username_param}', region='${region}') }}"
         db_password: "{{ lookup('aws_ssm', '${db_password_param}', region='${region}') }}"
         s3_bucket: "{{ lookup('aws_ssm', '${s3_bucket_param}', region='${region}', errors='ignore') | default('') }}"
-        
+        distribution_id: "{{ lookup('aws_ssm', '${distribution_id}', region='${region}', errors='ignore') | default('') }}"
+
         # Apache and PHP configuration
         apache_enablerepo: ""
         apache_listen_ip: "*"
@@ -246,9 +247,10 @@ runcmd:
     define( 'WP_DEBUG_DISPLAY', false );
 
     // WordPress URLs - using placeholder for now
-    // define( 'WP_HOME', 'http://' . $_SERVER['HTTP_HOST'] );
-    // define( 'WP_SITEURL', 'http://' . $_SERVER['HTTP_HOST'] );
-
+    define( 'WP_HOME', 'http://' .'{{ distribution_id }}' );
+    define( 'WP_SITEURL', 'http://' .'{{ distribution_id }}');
+    define( 'WP_HOME', 'http://{{ distribution_id }}' );
+    define( 'WP_SITEURL', 'http://{{ distribution_id }}' );
     // Disable file editing
     define( 'DISALLOW_FILE_EDIT', true );
 
