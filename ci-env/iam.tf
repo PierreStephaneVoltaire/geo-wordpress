@@ -1,6 +1,4 @@
-resource "random_id" "suffix" {
-  byte_length = 3
-}
+
 
 resource "aws_iam_role" "ec2_ssm_role" {
   name = "jenkins-ec2-ssm-role-${random_id.suffix.hex}"
