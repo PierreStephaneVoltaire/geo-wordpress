@@ -8,14 +8,13 @@ terraform {
   }
 }
 
-# Data sources
-data "aws_ami" "amazon_linux" {
+data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["al2023-ami-*-x86_64"]
+    values = ["al2023-ami-2023.*-x86_64"]
   }
 
   filter {
@@ -32,7 +31,7 @@ locals {
 # Launch Template
 resource "aws_launch_template" "wordpress" {
   name_prefix   = "${var.project_name}-${var.region}-"
-  image_id      = data.aws_ami.amazon_linux.id
+  image_id      = data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type
 
   vpc_security_group_ids = [var.ec2_security_group_id]

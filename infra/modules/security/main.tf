@@ -191,3 +191,10 @@ resource "aws_iam_instance_profile" "ec2_profile" {
 
   tags = var.tags
 }
+
+# Attach SSM Managed Instance Core policy to EC2 role
+resource "aws_iam_role_policy_attachment" "ec2_ssm_managed_instance_core" {
+  count      = var.security_group_type == "ec2" ? 1 : 0
+  role       = aws_iam_role.ec2_role[0].name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
