@@ -64,7 +64,7 @@ claude-*
 *.tmp
 *.bak
 *.swp
-
+*.zip
 # OS generated
 .DS_Store
 Thumbs.db
