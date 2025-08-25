@@ -1,7 +1,7 @@
 # Singapore provider
 provider "aws" {
   alias  = "singapore"
-  region = var.regions.singapore
+  region = var.geo_regions.all.singapore
   default_tags {
     tags = var.common_tags
   }
@@ -10,15 +10,15 @@ provider "aws" {
 # Ireland provider
 provider "aws" {
   alias  = "ireland"
-  region = var.regions.ireland
+  region = var.geo_regions.all.ireland
   default_tags {
     tags = var.common_tags
   }
 }
 
-# Default provider (Singapore)
+# Default provider (Primary region)
 provider "aws" {
-  region = var.regions.singapore
+  region = var.geo_regions.all[var.geo_regions.primary]
   default_tags {
     tags = var.common_tags
   }

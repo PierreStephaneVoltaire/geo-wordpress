@@ -35,8 +35,12 @@ data "archive_file" "geo_router_zip" {
 
   source {
     content = templatefile("${path.module}/lambda/geo_router.py", {
-      ireland_alb_dns   = module.ireland_compute.alb_dns_name
-      singapore_alb_dns = module.singapore_compute.alb_dns_name
+      # Create a map of region to ALB DNS names
+      region_alb_dns = {
+        for region_name, compute in local.compute :
+        region_name => compute != null ? compute.alb_dns_name : ""
+        if compute != null
+      }
     })
     filename = "index.py"
   }
@@ -69,37 +73,31 @@ resource "aws_cloudfront_distribution" "wordpress" {
   is_ipv6_enabled     = true
   price_class         = "PriceClass_100"
 
-  # Singapore ALB Origin (Primary)
-  origin {
-    domain_name = module.singapore_compute.alb_dns_name
-    origin_id   = "singapore-alb"
+  # Dynamic origins for all regions
+  dynamic "origin" {
+    for_each = {
+      for region_name, compute in local.compute :
+      region_name => compute
+      if compute != null
+    }
+    content {
+      domain_name = origin.value.alb_dns_name
+      origin_id   = "${origin.key}-alb"
 
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "http-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
     }
   }
 
-  # Ireland ALB Origin (Secondary)
-  origin {
-    domain_name = module.ireland_compute.alb_dns_name
-    origin_id   = "ireland-alb"
-
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "http-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-  }
-
-  # Default cache behavior with Lambda@Edge
+  # Default cache behavior with Lambda@Edge (targeting primary region)
   default_cache_behavior {
     allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "singapore-alb"
+    target_origin_id       = "${local.primary_region}-alb"
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
@@ -124,12 +122,12 @@ resource "aws_cloudfront_distribution" "wordpress" {
     max_ttl     = 0
   }
 
-  # Additional cache behavior for static assets
+  # Additional cache behavior for static assets (targeting primary region)
   ordered_cache_behavior {
     path_pattern           = "/wp-content/*"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "singapore-alb"
+    target_origin_id       = "${local.primary_region}-alb"
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
@@ -160,20 +158,15 @@ resource "aws_cloudfront_distribution" "wordpress" {
   tags = var.common_tags
 }
 
+# CloudFront distribution domain name parameters for all regions
 resource "aws_ssm_parameter" "cloudfront_distribution_domain_name" {
-  provider  = aws.singapore
+  for_each = local.all_region_configs
+
+  provider  = aws.singapore # TODO: This should be dynamic based on region
   name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_domain_name"
   type      = "String"
   value     = aws_cloudfront_distribution.wordpress.domain_name
   overwrite = true
 
-}
-
-resource "aws_ssm_parameter" "cloudfront_distribution_domain_name_ireland" {
-  provider  = aws.ireland
-  name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_domain_name"
-  type      = "String"
-  value     = aws_cloudfront_distribution.wordpress.domain_name
-  overwrite = true
-
+  tags = var.common_tags
 }

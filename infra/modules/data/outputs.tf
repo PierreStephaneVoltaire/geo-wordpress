@@ -9,35 +9,40 @@ output "s3_bucket_arn" {
 }
 
 
-output "singapore_db_endpoint_param" {
-  description = "Name of the Singapore database endpoint SSM parameter"
-  value       = aws_ssm_parameter.db_endpoint.name
+output "primary_db_endpoint_param" {
+  description = "Name of the primary database endpoint SSM parameter"
+  value       = aws_ssm_parameter.primary_db_endpoint.name
 }
 
-output "singapore_db_username_param" {
-  description = "Name of the Singapore database username SSM parameter"
-  value       = aws_ssm_parameter.db_username.name
+output "primary_db_username_param" {
+  description = "Name of the primary database username SSM parameter"
+  value       = aws_ssm_parameter.primary_db_username.name
 }
 
-output "singapore_db_password_param" {
-  description = "Name of the Singapore database password SSM parameter"
-  value       = aws_ssm_parameter.db_password.name
+output "primary_db_password_param" {
+  description = "Name of the primary database password SSM parameter"
+  value       = aws_ssm_parameter.primary_db_password.name
 }
 
-
-output "ireland_db_endpoint_param" {
-  description = "Name of the Ireland database endpoint SSM parameter"
-  value       = aws_ssm_parameter.ireland_db_endpoint.name
+output "secondary_db_endpoint_params" {
+  description = "Map of secondary region database endpoint SSM parameter names"
+  value = {
+    for region_name, param in aws_ssm_parameter.secondary_db_endpoint : region_name => param.name
+  }
 }
 
-output "ireland_db_username_param" {
-  description = "Name of the Ireland database username SSM parameter"
-  value       = aws_ssm_parameter.ireland_db_username.name
+output "secondary_db_username_params" {
+  description = "Map of secondary region database username SSM parameter names"
+  value = {
+    for region_name, param in aws_ssm_parameter.secondary_db_username : region_name => param.name
+  }
 }
 
-output "ireland_db_password_param" {
-  description = "Name of the Ireland database password SSM parameter"
-  value       = aws_ssm_parameter.ireland_db_password.name
+output "secondary_db_password_params" {
+  description = "Map of secondary region database password SSM parameter names"
+  value = {
+    for region_name, param in aws_ssm_parameter.secondary_db_password : region_name => param.name
+  }
 }
 
 

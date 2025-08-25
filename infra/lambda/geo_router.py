@@ -1,8 +1,8 @@
 import json
 
 def handler(event, context):
-    ireland_alb_dns = "${ireland_alb_dns}"
-    singapore_alb_dns = "${singapore_alb_dns}"
+    # Dynamic region to ALB DNS mapping
+    region_alb_dns = ${jsonencode(region_alb_dns)}
     
     request = event['Records'][0]['cf']['request']
     headers = request['headers']
@@ -17,43 +17,42 @@ def handler(event, context):
     if querystring:
         uri += f'?{querystring}'
     
-
-    if country == 'IE':
+    # Country to region mapping
+    country_to_region = {
+        'IE': 'ireland',
+        'SG': 'singapore',
+        'CA': 'singapore',
+        'US': 'singapore',
+    }
+    
+    # Get the target region based on country, default to primary region
+    target_region = country_to_region.get(country, 'singapore')
+    
+    # Check if the target region exists in our deployment
+    if target_region in region_alb_dns:
+        target_alb = region_alb_dns[target_region]
         response = {
             'status': '302',
             'statusDescription': 'Found',
             'headers': {
                 'location': [{
                     'key': 'Location',
-                    'value': f'https://{ireland_alb_dns}{uri}'
-                }]
-            }
-        }
-        return response
-    # Singapore, Canada, US go to Singapore ALB
-    elif country in ['SG', 'CA', 'US']:
-        response = {
-            'status': '302',
-            'statusDescription': 'Found',
-            'headers': {
-                'location': [{
-                    'key': 'Location',
-                    'value': f'https://{singapore_alb_dns}{uri}'
+                    'value': f'https://{target_alb}{uri}'
                 }]
             }
         }
         return response
     else:
-        # All other countries get denied
+        # If target region doesn't exist, use the first available region
+        fallback_alb = list(region_alb_dns.values())[0]
         response = {
-            'status': '403',
-            'statusDescription': 'Forbidden',
+            'status': '302',
+            'statusDescription': 'Found',
             'headers': {
-                'content-type': [{
-                    'key': 'Content-Type',
-                    'value': 'text/plain'
+                'location': [{
+                    'key': 'Location',
+                    'value': f'https://{fallback_alb}{uri}'
                 }]
-            },
-            'body': 'Access denied from this location'
+            }
         }
         return response

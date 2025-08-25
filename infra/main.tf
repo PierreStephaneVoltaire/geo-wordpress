@@ -12,42 +12,74 @@ terraform {
   }
 }
 
+locals {
+  primary_region    = var.geo_regions.primary
+  secondary_regions = var.geo_regions.secondary
+  all_regions       = var.geo_regions.all
+  vpc_cidrs         = var.geo_regions.vpc_cidrs
 
-# Primary RDS instance in Singapore (where most traffic comes from - 60%)
+  # Create a combined list of all regions for iteration
+  all_region_names = keys(var.geo_regions.all)
+
+  # Create region-specific configurations
+  primary_region_config = {
+    (local.primary_region) = {
+      region_name = local.primary_region
+      aws_region  = local.all_regions[local.primary_region]
+      vpc_cidr    = local.vpc_cidrs[local.primary_region]
+      is_primary  = true
+    }
+  }
+
+  secondary_region_configs = {
+    for region in local.secondary_regions : region => {
+      region_name = region
+      aws_region  = local.all_regions[region]
+      vpc_cidr    = local.vpc_cidrs[region]
+      is_primary  = false
+    }
+  }
+
+  all_region_configs = merge(local.primary_region_config, local.secondary_region_configs)
+}
+
+
+# Primary RDS instance (in the primary region)
 module "database" {
   source = "./modules/database"
 
   providers = {
-    aws = aws.singapore
+    aws = aws.singapore # Note: Update this manually when changing primary region
   }
 
-  region                = var.regions.singapore
+  region                = local.all_regions[local.primary_region]
   project_name          = var.project_name
   environment           = var.environment
   db_username           = var.db_username
   db_password           = random_password.db_password.result
-  public_subnet_ids     = module.singapore_network.database_subnets # Using database subnets (private)
-  rds_security_group_id = module.singapore_rds_sg.security_group_id
+  public_subnet_ids     = local.network[local.primary_region].database_subnets
+  rds_security_group_id = local.rds_security_groups[local.primary_region].security_group_id
   random_suffix         = random_id.suffix.hex
 
   tags = var.common_tags
 }
 
-# Ireland Read Replica (30% of traffic)
-module "ireland_database_replica" {
-  source = "./modules/database"
+# Secondary region database replicas
+module "database_replicas" {
+  for_each = local.secondary_region_configs
+  source   = "./modules/database"
 
   providers = {
-    aws = aws.ireland
+    aws = aws.ireland # Note: Update this manually when changing secondary regions
   }
 
-  region                = var.regions.ireland
+  region                = each.value.aws_region
   project_name          = var.project_name
   environment           = var.environment
   db_username           = var.db_username
   db_password           = random_password.db_password.result
-  public_subnet_ids     = module.ireland_network.database_subnets # Using database subnets (private)
-  rds_security_group_id = module.ireland_rds_sg.security_group_id
+  public_subnet_ids     = local.network[each.key].database_subnets
+  rds_security_group_id = local.rds_security_groups[each.key].security_group_id
   random_suffix         = random_id.suffix.hex
 
   create_read_replica  = true
@@ -67,100 +99,115 @@ module "data" {
     aws.singapore = aws.singapore
   }
 
-  project_name        = var.project_name
-  random_suffix       = random_id.suffix.hex
-  environment         = var.environment
-  db_username         = var.db_username
-  db_password         = random_password.db_password.result
-  db_endpoint         = module.database.db_endpoint
-  ireland_db_endpoint = module.ireland_database_replica.db_endpoint
-  wp_admin_password   = random_password.wp_admin_password.result
+  project_name  = var.project_name
+  random_suffix = random_id.suffix.hex
+  environment   = var.environment
+  db_username   = var.db_username
+  db_password   = random_password.db_password.result
+  db_endpoint   = module.database.db_endpoint
+  # Create a map of secondary region DB endpoints
+  secondary_db_endpoints = {
+    for region_name, replica in module.database_replicas : region_name => replica.db_endpoint
+  }
+  wp_admin_password = random_password.wp_admin_password.result
 
   tags = var.common_tags
 }
 
-# Singapore Compute
+# Singapore Compute (Primary)
 module "singapore_compute" {
+  count  = contains(keys(local.all_region_configs), "singapore") ? 1 : 0
   source = "./modules/compute"
 
   providers = {
     aws = aws.singapore
   }
 
-  region                    = var.regions.singapore
+  region                    = local.all_region_configs["singapore"].aws_region
   project_name              = var.project_name
   environment               = var.environment
-  vpc_id                    = module.singapore_network.vpc_id
-  private_subnets           = module.singapore_network.private_subnets
-  public_subnets            = module.singapore_network.public_subnets
-  alb_security_group_id     = module.singapore_alb_sg.security_group_id
-  ec2_security_group_id     = module.singapore_ec2_sg.security_group_id
-  ec2_instance_profile_name = module.singapore_ec2_sg.ec2_instance_profile_name
+  vpc_id                    = local.network["singapore"].vpc_id
+  private_subnets           = local.network["singapore"].private_subnets
+  public_subnets            = local.network["singapore"].public_subnets
+  alb_security_group_id     = local.alb_security_groups["singapore"].security_group_id
+  ec2_security_group_id     = local.ec2_security_groups["singapore"].security_group_id
+  ec2_instance_profile_name = local.ec2_security_groups["singapore"].ec2_instance_profile_name
   instance_type             = var.instance_type
   min_size                  = var.min_size
   max_size                  = var.max_size
   desired_capacity          = var.desired_capacity
   s3_bucket_name            = module.data.s3_bucket_name
-  db_endpoint               = module.database.db_endpoint
+  db_endpoint               = local.all_region_configs["singapore"].is_primary ? module.database.db_endpoint : module.database_replicas["singapore"].db_endpoint
   parameter_store_prefix    = "/${var.project_name}/${var.environment}"
 
-  # User data template variables
   user_data_template_vars = {
-    region                    = var.regions.singapore
-    db_region                 = var.regions.singapore
+    region                    = local.all_region_configs["singapore"].aws_region
+    db_region                 = local.all_region_configs["singapore"].aws_region
     project_name              = var.project_name
     environment               = var.environment
-    db_endpoint_param         = module.data.singapore_db_endpoint_param
-    db_username_param         = module.data.singapore_db_username_param
-    db_password_param         = module.data.singapore_db_password_param
+    db_endpoint_param         = local.all_region_configs["singapore"].is_primary ? module.data.primary_db_endpoint_param : module.data.secondary_db_endpoint_params["singapore"]
+    db_username_param         = local.all_region_configs["singapore"].is_primary ? module.data.primary_db_username_param : module.data.secondary_db_username_params["singapore"]
+    db_password_param         = local.all_region_configs["singapore"].is_primary ? module.data.primary_db_password_param : module.data.secondary_db_password_params["singapore"]
     s3_bucket_param           = module.data.s3_bucket_param
-    primary_db_endpoint_param = module.data.singapore_db_endpoint_param
+    primary_db_endpoint_param = module.data.primary_db_endpoint_param
     admin_email               = var.admin_email
-    distribution_domain_name   = aws_ssm_parameter.cloudfront_distribution_domain_name.name
+    distribution_domain_name  = "placeholder-will-be-updated-after-cloudfront"
   }
 
   tags = var.common_tags
 }
 
-# Ireland Compute
+# Ireland Compute (Secondary)
 module "ireland_compute" {
+  count  = contains(keys(local.all_region_configs), "ireland") ? 1 : 0
   source = "./modules/compute"
 
   providers = {
     aws = aws.ireland
   }
 
-  region                    = var.regions.ireland
+  region                    = local.all_region_configs["ireland"].aws_region
   project_name              = var.project_name
   environment               = var.environment
-  vpc_id                    = module.ireland_network.vpc_id
-  private_subnets           = module.ireland_network.private_subnets
-  public_subnets            = module.ireland_network.public_subnets
-  alb_security_group_id     = module.ireland_alb_sg.security_group_id
-  ec2_security_group_id     = module.ireland_ec2_sg.security_group_id
-  ec2_instance_profile_name = module.ireland_ec2_sg.ec2_instance_profile_name
+  vpc_id                    = local.network["ireland"].vpc_id
+  private_subnets           = local.network["ireland"].private_subnets
+  public_subnets            = local.network["ireland"].public_subnets
+  alb_security_group_id     = local.alb_security_groups["ireland"].security_group_id
+  ec2_security_group_id     = local.ec2_security_groups["ireland"].security_group_id
+  ec2_instance_profile_name = local.ec2_security_groups["ireland"].ec2_instance_profile_name
   instance_type             = var.instance_type
   min_size                  = var.min_size
   max_size                  = var.max_size
   desired_capacity          = var.desired_capacity
   s3_bucket_name            = module.data.s3_bucket_name
-  db_endpoint               = module.database.db_endpoint
+  db_endpoint               = local.all_region_configs["ireland"].is_primary ? module.database.db_endpoint : module.database_replicas["ireland"].db_endpoint
   parameter_store_prefix    = "/${var.project_name}/${var.environment}"
 
-  # User data template variables
   user_data_template_vars = {
-    region                    = var.regions.ireland
-    db_region                 = var.regions.ireland
+    region                    = local.all_region_configs["ireland"].aws_region
+    db_region                 = local.all_region_configs["ireland"].aws_region
     project_name              = var.project_name
     environment               = var.environment
-    db_endpoint_param         = module.data.ireland_db_endpoint_param
-    db_username_param         = module.data.ireland_db_username_param
-    db_password_param         = module.data.ireland_db_password_param
+    db_endpoint_param         = local.all_region_configs["ireland"].is_primary ? module.data.primary_db_endpoint_param : module.data.secondary_db_endpoint_params["ireland"]
+    db_username_param         = local.all_region_configs["ireland"].is_primary ? module.data.primary_db_username_param : module.data.secondary_db_username_params["ireland"]
+    db_password_param         = local.all_region_configs["ireland"].is_primary ? module.data.primary_db_password_param : module.data.secondary_db_password_params["ireland"]
     s3_bucket_param           = module.data.s3_bucket_param
-    primary_db_endpoint_param = module.data.singapore_db_endpoint_param
+    primary_db_endpoint_param = module.data.primary_db_endpoint_param
     admin_email               = var.admin_email
-    distribution_domain_name          = aws_ssm_parameter.cloudfront_distribution_domain_name_ireland.name
+    distribution_domain_name  = "placeholder-will-be-updated-after-cloudfront"
   }
 
   tags = var.common_tags
+}
+
+# Create a local map to reference compute modules uniformly for CloudFront
+locals {
+  compute = {
+    for region_name in keys(local.all_region_configs) :
+    region_name => region_name == "singapore" ? (
+      length(module.singapore_compute) > 0 ? module.singapore_compute[0] : null
+      ) : region_name == "ireland" ? (
+      length(module.ireland_compute) > 0 ? module.ireland_compute[0] : null
+    ) : null
+  }
 }

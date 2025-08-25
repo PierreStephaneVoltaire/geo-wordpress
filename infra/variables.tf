@@ -1,24 +1,22 @@
-variable "regions" {
-  description = "AWS regions for deployment"
+variable "geo_regions" {
+  description = "Geographic region configuration for deployment"
   type = object({
-    singapore = string
-    ireland   = string
+    primary   = string
+    secondary = list(string)
+    all       = map(string)
+    vpc_cidrs = map(string)
   })
   default = {
-    singapore = "ap-southeast-1"
-    ireland   = "eu-west-1"
-  }
-}
-
-variable "vpc_cidrs" {
-  description = "VPC CIDR blocks for each region"
-  type = object({
-    singapore = string
-    ireland   = string
-  })
-  default = {
-    singapore = "10.0.0.0/16"
-    ireland   = "10.1.0.0/16"
+    primary   = "singapore"
+    secondary = ["ireland"]
+    all = {
+      singapore = "ap-southeast-1"
+      ireland   = "eu-west-1"
+    }
+    vpc_cidrs = {
+      singapore = "10.0.0.0/16"
+      ireland   = "10.1.0.0/16"
+    }
   }
 }
 
@@ -61,7 +59,7 @@ variable "max_size" {
 variable "desired_capacity" {
   description = "Desired number of instances in ASG"
   type        = number
-  default     = 1
+  default     = 0
 }
 
 variable "common_tags" {

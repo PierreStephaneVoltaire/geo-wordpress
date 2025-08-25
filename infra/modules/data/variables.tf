@@ -30,15 +30,24 @@ variable "db_username" {
 }
 
 variable "db_endpoint" {
-  description = "Database endpoint for parameter store"
+  description = "Primary database endpoint for parameter store"
   type        = string
   default     = ""
 }
 
-variable "ireland_db_endpoint" {
-  description = "Ireland database endpoint for parameter store"
-  type        = string
-  default     = ""
+variable "secondary_db_endpoints" {
+  description = "Map of secondary region database endpoints for parameter store"
+  type        = map(string)
+  default     = {}
+}
+
+variable "regions_config" {
+  description = "Configuration for all deployed regions"
+  type = map(object({
+    is_primary = bool
+    aws_region = string
+  }))
+  default = {}
 }
 
 variable "wp_admin_password" {
