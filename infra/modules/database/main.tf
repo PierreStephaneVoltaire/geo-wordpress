@@ -1,4 +1,3 @@
-
 terraform {
   required_providers {
     aws = {
@@ -12,20 +11,12 @@ resource "aws_db_subnet_group" "wordpress" {
   count      = var.create_read_replica ? 0 : 1
   name       = "${var.project_name}-${var.environment}-${var.region}-db-subnet-group-${var.random_suffix}"
   subnet_ids = var.public_subnet_ids
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-db-subnet-group-${var.region}-${var.random_suffix}"
-  })
 }
 
 resource "aws_db_subnet_group" "wordpress_replica" {
   count      = var.create_read_replica ? 1 : 0
   name       = "${var.project_name}-${var.environment}-replica-${var.region}-db-subnet-group-${var.random_suffix}"
   subnet_ids = var.public_subnet_ids
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-replica-db-subnet-group-${var.region}-${var.random_suffix}"
-  })
 }
 
 resource "aws_db_instance" "wordpress" {
@@ -57,10 +48,6 @@ resource "aws_db_instance" "wordpress" {
 
   multi_az            = false
   publicly_accessible = false
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-mariadb-${var.region}-${var.random_suffix}"
-  })
 }
 
 resource "aws_db_instance" "wordpress_replica" {
@@ -77,8 +64,4 @@ resource "aws_db_instance" "wordpress_replica" {
   deletion_protection = false
 
   publicly_accessible = false
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-mariadb-replica-${var.region}-${var.random_suffix}"
-  })
 }

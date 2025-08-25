@@ -12,12 +12,8 @@ module "singapore_network" {
   vpc_cidr        = var.vpc_cidrs.singapore
   project_name    = var.project_name
   environment     = var.environment
-  is_database_vpc = true # Create database subnets
 
-  # CloudFront configuration (only for primary region) - disabled for now due to dependencies
-  create_cloudfront = false
-  singapore_alb_dns = ""
-  ireland_alb_dns   = ""
+
 
   tags = var.common_tags
 }
@@ -35,13 +31,6 @@ module "ireland_network" {
   vpc_cidr        = var.vpc_cidrs.ireland
   project_name    = var.project_name
   environment     = var.environment
-  is_database_vpc = true # Create database subnets
-
-  # CloudFront configuration (disabled for secondary region)
-  create_cloudfront = false
-  singapore_alb_dns = ""
-  ireland_alb_dns   = ""
-
   tags = var.common_tags
 }
 

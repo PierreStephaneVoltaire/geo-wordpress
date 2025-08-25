@@ -18,29 +18,8 @@ variable "environment" {
   type        = string
 }
 
-variable "is_database_vpc" {
-  description = "Whether this VPC should create database subnets"
-  type        = bool
-  default     = false
-}
 
-variable "create_cloudfront" {
-  description = "Whether to create CloudFront distribution (only for primary region)"
-  type        = bool
-  default     = false
-}
 
-variable "singapore_alb_dns" {
-  description = "DNS name of Singapore ALB"
-  type        = string
-  default     = ""
-}
-
-variable "ireland_alb_dns" {
-  description = "DNS name of Ireland ALB"
-  type        = string
-  default     = ""
-}
 
 variable "create_vpc_peering" {
   description = "Whether to create VPC peering connection"

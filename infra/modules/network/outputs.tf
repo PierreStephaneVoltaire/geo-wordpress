@@ -19,13 +19,13 @@ output "public_subnets" {
 }
 
 output "database_subnets" {
-  description = "List of IDs of database subnets (using public subnets for free tier)"
-  value       = var.is_database_vpc ? module.vpc.public_subnets : module.vpc.database_subnets
+  description = "List of IDs of database subnets"
+  value       =  module.vpc.public_subnets
 }
 
 output "database_subnet_group" {
   description = "ID of database subnet group"
-  value       = var.is_database_vpc ? module.vpc.database_subnet_group : null
+  value       =  module.vpc.database_subnet_group 
 }
 
 output "public_route_table_ids" {
@@ -35,5 +35,5 @@ output "public_route_table_ids" {
 
 output "database_route_table_ids" {
   description = "List of IDs of database route tables (using public route tables)"
-  value       = var.is_database_vpc ? module.vpc.public_route_table_ids : []
+  value       =  module.vpc.public_route_table_ids
 }

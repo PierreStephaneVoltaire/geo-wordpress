@@ -1,4 +1,3 @@
-
 terraform {
   required_providers {
     aws = {
@@ -38,11 +37,6 @@ resource "aws_security_group" "alb" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "All outbound traffic"
   }
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-alb-${var.region}"
-    Type = "ALB"
-  })
 }
 
 resource "aws_security_group" "ec2" {
@@ -67,13 +61,7 @@ resource "aws_security_group" "ec2" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "All outbound traffic"
   }
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-ec2-${var.region}"
-    Type = "EC2"
-  })
 }
-
 
 resource "aws_security_group" "rds" {
   count = var.security_group_type == "rds" ? 1 : 0
@@ -113,11 +101,6 @@ resource "aws_security_group" "rds" {
     cidr_blocks = ["0.0.0.0/0"]
     description = "All outbound traffic"
   }
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-rds-${var.region}"
-    Type = "RDS"
-  })
 }
 
 resource "aws_iam_role" "ec2_role" {
@@ -136,8 +119,6 @@ resource "aws_iam_role" "ec2_role" {
       }
     ]
   })
-
-  tags = var.tags
 }
 
 resource "aws_iam_role_policy" "ec2_policies" {
@@ -197,8 +178,6 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   count = var.security_group_type == "ec2" ? 1 : 0
   name  = "${var.project_name}-ec2-profile-${var.region}"
   role  = aws_iam_role.ec2_role[0].name
-
-  tags = var.tags
 }
 
 # Attach SSM Managed Instance Core policy to EC2 role
