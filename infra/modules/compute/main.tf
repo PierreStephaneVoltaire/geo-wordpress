@@ -48,7 +48,7 @@ resource "aws_launch_template" "wordpress" {
     device_name = "/dev/xvda"
     ebs {
       volume_type           = "gp3"
-      volume_size           = 20
+      volume_size           = var.ebs_volume_size
       encrypted             = true
       delete_on_termination = true
     }
@@ -110,7 +110,7 @@ resource "aws_lb_listener" "wordpress" {
 # Auto Scaling Group
 resource "aws_autoscaling_group" "wordpress" {
   name                      = "${var.project_name}-asg-${var.region}"
-  vpc_zone_identifier       = var.public_subnets # Use public subnets to avoid NAT costs
+  vpc_zone_identifier       = var.public_subnets #
   target_group_arns         = [aws_lb_target_group.wordpress.arn]
   health_check_type         = "ELB"
   health_check_grace_period = 600

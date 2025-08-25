@@ -24,15 +24,15 @@ resource "aws_db_instance" "wordpress" {
   identifier = "${var.project_name}-${var.environment}-${var.random_suffix}"
 
   engine         = "mariadb"
-  engine_version = "10.11.8"
-  instance_class = "db.t3.micro"
+  engine_version = var.db_engine_version
+  instance_class = var.db_instance_class
 
-  allocated_storage     = 20
-  max_allocated_storage = 100
+  allocated_storage     = var.db_allocated_storage
+  max_allocated_storage = var.db_max_allocated_storage
   storage_type          = "gp3"
   storage_encrypted     = false
 
-  db_name  = "wordpress"
+  db_name  = var.db_name
   username = var.db_username
   password = var.db_password
 
@@ -55,7 +55,7 @@ resource "aws_db_instance" "wordpress_replica" {
   identifier          = "${var.project_name}-${var.environment}-replica-${var.region}-${var.random_suffix}"
   replicate_source_db = var.source_db_arn
 
-  instance_class = "db.t3.micro"
+  instance_class = var.db_instance_class
 
   vpc_security_group_ids = [var.rds_security_group_id]
   db_subnet_group_name   = aws_db_subnet_group.wordpress_replica[0].name

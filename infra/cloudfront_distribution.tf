@@ -147,7 +147,8 @@ resource "aws_cloudfront_distribution" "wordpress" {
 
   restrictions {
     geo_restriction {
-      restriction_type = "none"
+      restriction_type = length(var.geoblocking_countries) > 0 ? "blacklist" : "none"
+      locations        = var.geoblocking_countries
     }
   }
 

@@ -18,6 +18,36 @@ variable "db_username" {
   type        = string
 }
 
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "wordpress"
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "db_allocated_storage" {
+  description = "Initial allocated storage for RDS in GB"
+  type        = number
+  default     = 20
+}
+
+variable "db_max_allocated_storage" {
+  description = "Maximum allocated storage for RDS autoscaling in GB"
+  type        = number
+  default     = 100
+}
+
+variable "db_engine_version" {
+  description = "MariaDB engine version"
+  type        = string
+  default     = "10.11.8"
+}
+
 variable "db_password" {
   description = "Database master password"
   type        = string

@@ -8,7 +8,7 @@ resource "random_id" "suffix" {
 
 resource "random_password" "db_password" {
   length  = 16
-  special = true
+  special = false
 }
 
 # WordPress admin password generation

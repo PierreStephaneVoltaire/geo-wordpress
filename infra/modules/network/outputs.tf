@@ -37,3 +37,8 @@ output "database_route_table_ids" {
   description = "List of IDs of database route tables (using public route tables)"
   value       = module.vpc.public_route_table_ids
 }
+
+output "peering_connection_ids" {
+  description = "Map of region to VPC peering connection ID"
+  value       = { for k, v in aws_vpc_peering_connection.to_secondary : k => v.id }
+}

@@ -18,14 +18,8 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "private_subnets" {
-  description = "List of private subnet IDs for ASG (not used - keeping for compatibility)"
-  type        = list(string)
-  default     = []
-}
-
 variable "public_subnets" {
-  description = "List of public subnet IDs for ALB"
+  description = "List of public subnet IDs for ALB and ASG (free tier configuration)"
   type        = list(string)
 }
 
@@ -47,6 +41,12 @@ variable "ec2_instance_profile_name" {
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
+}
+
+variable "ebs_volume_size" {
+  description = "EBS volume size for EC2 instances in GB"
+  type        = number
+  default     = 20
 }
 
 variable "min_size" {

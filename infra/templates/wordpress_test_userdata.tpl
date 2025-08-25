@@ -16,6 +16,7 @@ packages:
   - make
   - php-pear
 
+
 runcmd:
   # Enable SSM agent
   - systemctl enable amazon-ssm-agent
@@ -26,7 +27,7 @@ runcmd:
   - echo 'ansible ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
   - mkdir -p /tmp/ansible/{roles,playbooks}
   - |
-    # Install APCu with PECL
+    dnf install mariadb105 -y
     pecl install apcu
     echo "extension=apcu.so" > /etc/php.d/apcu.ini
   - ansible-galaxy collection install community.mysql amazon.aws --force

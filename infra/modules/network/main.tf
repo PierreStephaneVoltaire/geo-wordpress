@@ -43,25 +43,16 @@ module "vpc" {
   create_database_subnet_group = true
 }
 
+# VPC Peering connections to secondary regions (only for primary region)
+resource "aws_vpc_peering_connection" "to_secondary" {
+  for_each = var.peer_vpc_ids
 
-
-resource "aws_vpc_peering_connection" "singapore_to_ireland" {
-  count       = var.create_vpc_peering ? 1 : 0
   vpc_id      = module.vpc.vpc_id
-  peer_vpc_id = var.peer_vpc_id
-  peer_region = var.peer_region
+  peer_vpc_id = each.value
+  peer_region = each.key
   auto_accept = false
-}
 
-resource "aws_vpc_peering_connection_accepter" "accept_peering" {
-  count                     = var.accept_vpc_peering ? 1 : 0
-  vpc_peering_connection_id = var.peering_connection_id
-  auto_accept               = true
-}
-
-resource "aws_route" "to_peer_vpc" {
-  count                     = var.create_peering_routes ? 1 : 0
-  route_table_id            = module.vpc.public_route_table_ids[0]
-  destination_cidr_block    = var.peer_vpc_cidr
-  vpc_peering_connection_id = var.create_vpc_peering ? aws_vpc_peering_connection.singapore_to_ireland[0].id : var.peering_connection_id
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-peering-to-${each.key}"
+  })
 }
