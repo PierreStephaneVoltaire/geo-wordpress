@@ -39,7 +39,7 @@ resource "aws_launch_template" "wordpress" {
 
   network_interfaces {
     associate_public_ip_address = true
-    security_groups = [var.ec2_security_group_id]
+    security_groups             = [var.ec2_security_group_id]
   }
 
   user_data = local.user_data
@@ -47,9 +47,9 @@ resource "aws_launch_template" "wordpress" {
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
-      volume_type = "gp3"
-      volume_size = 20
-      encrypted   = true
+      volume_type           = "gp3"
+      volume_size           = 20
+      encrypted             = true
       delete_on_termination = true
     }
   }

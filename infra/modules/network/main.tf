@@ -30,7 +30,7 @@ module "vpc" {
     cidrsubnet(var.vpc_cidr, 8, 2)
   ]
 
-  database_subnets =  [
+  database_subnets = [
     cidrsubnet(var.vpc_cidr, 8, 21),
     cidrsubnet(var.vpc_cidr, 8, 22)
   ]

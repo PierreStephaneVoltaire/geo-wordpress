@@ -8,10 +8,10 @@ module "singapore_network" {
     aws.us_east_1 = aws.us_east_1
   }
 
-  region          = var.regions.singapore
-  vpc_cidr        = var.vpc_cidrs.singapore
-  project_name    = var.project_name
-  environment     = var.environment
+  region       = var.regions.singapore
+  vpc_cidr     = var.vpc_cidrs.singapore
+  project_name = var.project_name
+  environment  = var.environment
 
 
 
@@ -27,11 +27,11 @@ module "ireland_network" {
     aws.us_east_1 = aws.us_east_1
   }
 
-  region          = var.regions.ireland
-  vpc_cidr        = var.vpc_cidrs.ireland
-  project_name    = var.project_name
-  environment     = var.environment
-  tags = var.common_tags
+  region       = var.regions.ireland
+  vpc_cidr     = var.vpc_cidrs.ireland
+  project_name = var.project_name
+  environment  = var.environment
+  tags         = var.common_tags
 }
 
 
