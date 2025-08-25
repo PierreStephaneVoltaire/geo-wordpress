@@ -107,6 +107,22 @@ resource "aws_lb_listener" "wordpress" {
   }
 }
 
+resource "aws_lb_listener" "wordpress_https_redirect" {
+  load_balancer_arn = aws_lb.wordpress.arn
+  port              = "443"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "80"
+      protocol    = "HTTP"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
 # Auto Scaling Group
 resource "aws_autoscaling_group" "wordpress" {
   name                      = "${var.project_name}-asg-${var.region}"

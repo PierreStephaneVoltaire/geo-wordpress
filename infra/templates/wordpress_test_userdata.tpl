@@ -203,6 +203,21 @@ runcmd:
             group: apache
             mode: '0644'
           when: wp_core_install is succeeded
+
+        - name: Restart Apache to pick up new wp-config
+          systemd:
+            name: httpd
+            state: restarted
+          when: wp_core_install is succeeded
+
+        - name: Clear any WordPress cache/opcache
+          shell: |
+            # Clear OPcache if enabled
+            systemctl reload php-fpm || true
+            # Clear any file-based cache
+            find /var/www/html/wp-content/cache -type f -delete 2>/dev/null || true
+          ignore_errors: yes
+          when: wp_core_install is succeeded
     EOF
 
   # Create wp-config.php template
