@@ -160,20 +160,20 @@ resource "aws_cloudfront_distribution" "wordpress" {
   tags = var.common_tags
 }
 
-resource "aws_ssm_parameter" "cloudfront_distribution_id" {
+resource "aws_ssm_parameter" "cloudfront_distribution_domain_name" {
   provider  = aws.singapore
-  name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_id"
+  name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_domain_name"
   type      = "String"
-  value     = aws_cloudfront_distribution.wordpress.id
+  value     = aws_cloudfront_distribution.wordpress.domain_name
   overwrite = true
 
 }
 
-resource "aws_ssm_parameter" "cloudfront_distribution_id_ireland" {
+resource "aws_ssm_parameter" "cloudfront_distribution_domain_name_ireland" {
   provider  = aws.ireland
-  name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_id"
+  name      = "/${var.project_name}/${var.environment}/cloudfront/distribution_domain_name"
   type      = "String"
-  value     = aws_cloudfront_distribution.wordpress.id
+  value     = aws_cloudfront_distribution.wordpress.domain_name
   overwrite = true
 
 }

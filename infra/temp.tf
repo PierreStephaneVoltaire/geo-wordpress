@@ -144,7 +144,7 @@ resource "aws_instance" "test_wordpress_singapore" {
     s3_bucket_param           = module.data.s3_bucket_param
     primary_db_endpoint_param = module.data.singapore_db_endpoint_param
     admin_email               = var.admin_email
-    distribution_id           = aws_ssm_parameter.cloudfront_distribution_id.name
+    distribution_domain_name          = aws_ssm_parameter.cloudfront_distribution_domain_name.name
   })
 
   root_block_device {
@@ -182,7 +182,7 @@ resource "aws_instance" "test_wordpress_ireland" {
     s3_bucket_param           = module.data.s3_bucket_param
     primary_db_endpoint_param = module.data.singapore_db_endpoint_param
     admin_email               = var.admin_email
-    distribution_id           = aws_ssm_parameter.cloudfront_distribution_id_ireland.name
+    distribution_domain_name          = aws_ssm_parameter.cloudfront_distribution_domain_name_ireland.name
   })
 
   root_block_device {
