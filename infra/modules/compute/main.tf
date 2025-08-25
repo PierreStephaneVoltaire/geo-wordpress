@@ -32,7 +32,6 @@ resource "aws_launch_template" "wordpress" {
   name_prefix   = "${var.project_name}-${var.region}-"
   image_id      = data.aws_ami.amazon_linux_2023.id
   instance_type = var.instance_type
-  vpc_security_group_ids = [var.ec2_security_group_id]
 
   iam_instance_profile {
     name = var.ec2_instance_profile_name
