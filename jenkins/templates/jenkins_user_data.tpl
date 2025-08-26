@@ -15,6 +15,10 @@ packages:
 runcmd:
   - mount -t tmpfs -o size=6G tmpfs /tmp
   - echo "tmpfs /tmp tmpfs defaults,size=6G 0 0" >> /etc/fstab
+  - sudo fallocate -l 4G /swapfile
+  - sudo chmod 600 /swapfile
+  - sudo mkswap /swapfile
+  - sudo swapon /swapfile
   - systemctl enable amazon-ssm-agent
   - systemctl start amazon-ssm-agent
   - useradd -m -s /bin/bash ansible
@@ -35,6 +39,7 @@ runcmd:
           - java-17-amazon-corretto-devel
         jenkins_hostname: localhost
         jenkins_http_port: 8080
+        jenkins_home: /opt/jenkins
         jenkins_admin_username: "{{ lookup('aws_ssm', '/jenkins/admin/username-${random_suffix}', region='${region}') }}"
         jenkins_admin_password: "{{ lookup('aws_ssm', '/jenkins/admin/password-${random_suffix}', region='${region}') }}"
         jenkins_java_options: "-Djenkins.install.runSetupWizard=false -Djava.io.tmpdir=/opt/jenkins/tmp -Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Dfile.encoding=UTF-8 -Duser.country=US -Duser.language=en -Djava.security.egd=file:/dev/./urandom"
