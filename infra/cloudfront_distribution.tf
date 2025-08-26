@@ -99,7 +99,7 @@ resource "aws_cloudfront_distribution" "wordpress" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "${local.primary_region}-alb"
     compress               = true
-    viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy = "allow-all"
 
     forwarded_values {
       query_string = true
@@ -129,7 +129,7 @@ resource "aws_cloudfront_distribution" "wordpress" {
     cached_methods         = ["GET", "HEAD"]
     target_origin_id       = "${local.primary_region}-alb"
     compress               = true
-    viewer_protocol_policy = "redirect-to-https"
+    viewer_protocol_policy = "allow-all"
 
     forwarded_values {
       query_string = false
