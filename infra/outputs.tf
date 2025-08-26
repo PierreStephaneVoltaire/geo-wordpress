@@ -38,3 +38,8 @@ output "parameter_store_prefix" {
   value       = "/${var.project_name}/${var.environment}"
 }
 
+output "cloudfront_distribution_url" {
+  description = "CloudFront distribution URL"
+  value       = "http://${aws_cloudfront_distribution.wordpress.domain_name}"
+}
+
