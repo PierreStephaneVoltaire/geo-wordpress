@@ -89,12 +89,12 @@ variable "region_capacity_config" {
   }))
   default = {
     singapore = {
-      min_size         = 0
+      min_size         = 1
       max_size         = 4
       desired_capacity = 2
     }
     ireland = {
-      min_size         = 0
+      min_size         = 1
       max_size         = 4
       desired_capacity = 1
     }
