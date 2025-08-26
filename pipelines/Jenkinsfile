@@ -24,17 +24,6 @@ pipeline {
             choices: ['10.11.8', '10.11.9', '10.6.16', '10.6.17'],
             description: 'MariaDB engine version'
         )
-        
-        // Singapore region capacity
-        string(name: 'SINGAPORE_MIN_SIZE', defaultValue: '0', description: 'Minimum instances in Singapore ASG')
-        string(name: 'SINGAPORE_MAX_SIZE', defaultValue: '4', description: 'Maximum instances in Singapore ASG')
-        string(name: 'SINGAPORE_DESIRED_CAPACITY', defaultValue: '2', description: 'Desired instances in Singapore ASG')
-        
-        // Ireland region capacity
-        string(name: 'IRELAND_MIN_SIZE', defaultValue: '0', description: 'Minimum instances in Ireland ASG')
-        string(name: 'IRELAND_MAX_SIZE', defaultValue: '4', description: 'Maximum instances in Ireland ASG')
-        string(name: 'IRELAND_DESIRED_CAPACITY', defaultValue: '1', description: 'Desired instances in Ireland ASG')
-        
         // Geoblocking (optional)
         text(
             name: 'GEOBLOCKING_COUNTRIES',
@@ -52,24 +41,6 @@ pipeline {
            stage('Prepare Variables') {
             steps {
                 script {
-                    // Validate Singapore capacity values
-                    def sgMinSize = params.SINGAPORE_MIN_SIZE.toInteger()
-                    def sgMaxSize = params.SINGAPORE_MAX_SIZE.toInteger()
-                    def sgDesiredCapacity = params.SINGAPORE_DESIRED_CAPACITY.toInteger()
-                    
-                    if (sgMinSize > sgDesiredCapacity || sgDesiredCapacity > sgMaxSize) {
-                        error "Singapore capacity validation failed: min_size (${sgMinSize}) <= desired_capacity (${sgDesiredCapacity}) <= max_size (${sgMaxSize})"
-                    }
-                    
-                    // Validate Ireland capacity values
-                    def ieMinSize = params.IRELAND_MIN_SIZE.toInteger()
-                    def ieMaxSize = params.IRELAND_MAX_SIZE.toInteger()
-                    def ieDesiredCapacity = params.IRELAND_DESIRED_CAPACITY.toInteger()
-                    
-                    if (ieMinSize > ieDesiredCapacity || ieDesiredCapacity > ieMaxSize) {
-                        error "Ireland capacity validation failed: min_size (${ieMinSize}) <= desired_capacity (${ieDesiredCapacity}) <= max_size (${ieMaxSize})"
-                    }
-                    
                     // Write region capacity config to tfvars file with proper HCL syntax
                     writeFile file: 'infra/pipeline.auto.tfvars', text: """
 instance_type = "${params.INSTANCE_TYPE}"
@@ -80,23 +51,8 @@ db_allocated_storage = ${params.DB_ALLOCATED_STORAGE}
 db_max_allocated_storage = ${params.DB_MAX_ALLOCATED_STORAGE}
 db_name = "${params.DB_NAME}"
 db_engine_version = "${params.DB_ENGINE_VERSION}"
-region_capacity_config = {
-  singapore = {
-    min_size         = ${sgMinSize}
-    max_size         = ${sgMaxSize}
-    desired_capacity = ${sgDesiredCapacity}
-  }
-  ireland = {
-    min_size         = ${ieMinSize}
-    max_size         = ${ieMaxSize}
-    desired_capacity = ${ieDesiredCapacity}
-  }
-}
 geoblocking_countries = ${params.GEOBLOCKING_COUNTRIES ? '[' + params.GEOBLOCKING_COUNTRIES.split(',').collect { "\"${it.trim()}\"" }.join(',') + ']' : '[]'}
-"""
-                    echo "Configuration validated successfully:"
-                    echo "Singapore: min=${sgMinSize}, desired=${sgDesiredCapacity}, max=${sgMaxSize}"
-                    echo "Ireland: min=${ieMinSize}, desired=${ieDesiredCapacity}, max=${ieMaxSize}"
+""""
                 }
             }
         }
