@@ -37,7 +37,7 @@ def handler(event, context):
             'headers': {
                 'location': [{
                     'key': 'Location',
-                    'value': f'https://{target_alb}{uri}'
+                    'value': f'http://{target_alb}{uri}'
                 }]
             }
         }
@@ -51,7 +51,7 @@ def handler(event, context):
             'headers': {
                 'location': [{
                     'key': 'Location',
-                    'value': f'https://{fallback_alb}{uri}'
+                    'value': f'http://{fallback_alb}{uri}'
                 }]
             }
         }
