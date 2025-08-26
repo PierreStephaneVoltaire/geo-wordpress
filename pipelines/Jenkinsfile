@@ -70,20 +70,6 @@ pipeline {
                         error "Ireland capacity validation failed: min_size (${ieMinSize}) <= desired_capacity (${ieDesiredCapacity}) <= max_size (${ieMaxSize})"
                     }
                     
-                    // Create region capacity configuration JSON
-                    def regionCapacityConfig = [
-                        singapore: [
-                            min_size: sgMinSize,
-                            max_size: sgMaxSize,
-                            desired_capacity: sgDesiredCapacity
-                        ],
-                        ireland: [
-                            min_size: ieMinSize,
-                            max_size: ieMaxSize,
-                            desired_capacity: ieDesiredCapacity
-                        ]
-                    ]
-                    
                     // Write region capacity config to tfvars file
                     writeFile file: 'infra/pipeline.auto.tfvars', text: """
 instance_type = "${params.INSTANCE_TYPE}"
@@ -94,7 +80,7 @@ db_allocated_storage = ${params.DB_ALLOCATED_STORAGE}
 db_max_allocated_storage = ${params.DB_MAX_ALLOCATED_STORAGE}
 db_name = "${params.DB_NAME}"
 db_engine_version = "${params.DB_ENGINE_VERSION}"
-region_capacity_config = ${groovy.json.JsonBuilder(regionCapacityConfig).toPrettyString()}
+region_capacity_config = {"singapore":{"min_size":${sgMinSize},"max_size":${sgMaxSize},"desired_capacity":${sgDesiredCapacity}},"ireland":{"min_size":${ieMinSize},"max_size":${ieMaxSize},"desired_capacity":${ieDesiredCapacity}}}
 geoblocking_countries = ${params.GEOBLOCKING_COUNTRIES ? '[' + params.GEOBLOCKING_COUNTRIES.split(',').collect { "\"${it.trim()}\"" }.join(',') + ']' : '[]'}
 """
                     
