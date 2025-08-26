@@ -20,9 +20,7 @@ def handler(event, context):
     # Country to region mapping
     country_to_region = {
         'IE': 'ireland',
-        'SG': 'singapore',
-        'CA': 'singapore',
-        'US': 'singapore',
+        'SG': 'singapore'
     }
     
     # Get the target region based on country, default to primary region
