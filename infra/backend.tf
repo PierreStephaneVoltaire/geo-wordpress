@@ -1,7 +1,7 @@
 terraform {
   backend "s3" {
     bucket       = "pierre-tf-state"
-    key          = "geo-wordpress/infra/terraform.tfstate"
+    key          = "geo-wordpress-improved/infra/terraform.tfstate"
     region       = "ca-central-1"
     encrypt      = true
     use_lockfile = true
