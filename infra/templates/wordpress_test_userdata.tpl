@@ -306,7 +306,7 @@ runcmd:
     // Write operations always go to Singapore primary
     define( 'DB_HOST_WRITE', '{{ lookup('aws_ssm', '${primary_db_endpoint_param}', region='ap-southeast-1') | regex_replace(':3306$', '') }}' );
     
-    // Read operations use regional replica (local for better performance)
+    // Read operations use regional replica (regional for better performance)
     define( 'DB_HOST', '{{ lookup('aws_ssm', '${db_endpoint_param}', region='${region}') | regex_replace(':3306$', '') }}' );
     
     define( 'DB_CHARSET', 'utf8mb4' );
@@ -332,9 +332,9 @@ runcmd:
     {% endif %}
 
     // WordPress debugging
-    define( 'WP_DEBUG', false );
-    define( 'WP_DEBUG_LOG', false );
-    define( 'WP_DEBUG_DISPLAY', false );
+    define( 'WP_DEBUG', true );
+    define( 'WP_DEBUG_LOG', true );
+    define( 'WP_DEBUG_DISPLAY', true );
 
     // Disable file editing
     define( 'DISALLOW_FILE_EDIT', true );
