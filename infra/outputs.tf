@@ -38,14 +38,3 @@ output "parameter_store_prefix" {
   value       = "/${var.project_name}/${var.environment}"
 }
 
-output "deployment_instructions" {
-  description = "Instructions for completing the deployment"
-  value = {
-    step_1              = "Primary region (Singapore) will deploy first and create WordPress tables"
-    step_2              = "Secondary region (Ireland) starts with 0 instances to avoid race condition"
-    step_3              = "After primary WordPress is ready, scale up Ireland with: terraform apply -var='desired_capacity=1'"
-    step_4              = "Or update variables.tf to set desired_capacity=1 for Ireland specifically"
-    primary_ready_check = "Check Singapore ALB endpoint to verify WordPress is installed"
-    scale_up_command    = "To scale up secondary: terraform apply -target=module.ireland_compute -var='ireland_desired_capacity=1'"
-  }
-}
