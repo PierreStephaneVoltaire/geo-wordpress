@@ -13,6 +13,8 @@ packages:
   - ansible
 
 runcmd:
+  - mount -t tmpfs -o size=6G tmpfs /tmp
+  - echo "tmpfs /tmp tmpfs defaults,size=6G 0 0" >> /etc/fstab
   - systemctl enable amazon-ssm-agent
   - systemctl start amazon-ssm-agent
   - useradd -m -s /bin/bash ansible
@@ -70,11 +72,11 @@ runcmd:
         - name: Install Terraform
           shell: |
             cd /tmp
-            wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
-            unzip terraform_1.5.7_linux_amd64.zip
+            wget https://releases.hashicorp.com/terraform/1.11.0/terraform_1.11.0_linux_amd64.zip
+            unzip terraform_1.11.0_linux_amd64.zip
             mv terraform /usr/local/bin/
             chmod +x /usr/local/bin/terraform
-            rm -f terraform_1.5.7_linux_amd64.zip
+            rm -f terraform_1.11.0_linux_amd64.zip
           args:
             creates: /usr/local/bin/terraform
           become: yes
