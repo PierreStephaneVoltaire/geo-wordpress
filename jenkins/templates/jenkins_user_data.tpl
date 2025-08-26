@@ -19,6 +19,8 @@ runcmd:
   - usermod -aG wheel ansible
   - echo 'ansible ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
   - mkdir -p /tmp/roles
+  - sudo pip3 install boto3 botocore
+  - sudo ansible-galaxy collection install amazon.aws
   - ansible-galaxy install geerlingguy.jenkins geerlingguy.java --force --roles-path /tmp/roles
   - |
     cat <<'EOF' > /tmp/playbook.yml
