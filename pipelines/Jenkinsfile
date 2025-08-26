@@ -94,7 +94,7 @@ region_capacity_config = {
 }
 geoblocking_countries = ${params.GEOBLOCKING_COUNTRIES ? '[' + params.GEOBLOCKING_COUNTRIES.split(',').collect { "\"${it.trim()}\"" }.join(',') + ']' : '[]'}
 """
-                    
+                    cat 'infra/pipeline.auto.tfvars'
                     echo "Configuration validated successfully:"
                     echo "Singapore: min=${sgMinSize}, desired=${sgDesiredCapacity}, max=${sgMaxSize}"
                     echo "Ireland: min=${ieMinSize}, desired=${ieDesiredCapacity}, max=${ieMaxSize}"

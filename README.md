@@ -22,6 +22,11 @@ This solution provides a globally distributed WordPress infrastructure on AWS, o
 - **Scalability**: Auto Scaling Groups with dynamic capacity adjustment
 - **Geographic Restrictions**: CloudFront geo-blocking for compliance requirements
 - **Operational Simplicity**: Fully automated deployment and configuration management
+### URLS
+- jenkins: http://15.223.176.1:8080/
+
+
+
 
 ## Technologies & AWS Services
 
