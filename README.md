@@ -24,6 +24,7 @@ This solution provides a globally distributed WordPress infrastructure on AWS, o
 - **Operational Simplicity**: Fully automated deployment and configuration management
 ### URLS
 - jenkins: http://15.223.176.1:8080/
+- cloudfront: http://d2lq8jvpkgq0h8.cloudfront.net
 
 
 
